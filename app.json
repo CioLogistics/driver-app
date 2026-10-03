@@ -1,0 +1,36 @@
+{
+  "expo": {
+    "name": "Cio Driver",
+    "slug": "cio-driver",
+    "version": "0.1.0",
+    "scheme": "ciodriver",
+    "orientation": "portrait",
+    "userInterfaceStyle": "automatic",
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "am.ciologistics.driver",
+      "infoPlist": {
+        "LSApplicationQueriesSchemes": [
+          "whatsapp"
+        ]
+      }
+    },
+    "android": {
+      "package": "am.ciologistics.driver"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-localization",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Փաստաթղթերի նկարները վերբեռնելու համար",
+          "cameraPermission": "Փաստաթղթերը լուսանկարելու համար"
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": false
+    }
+  }
+}
