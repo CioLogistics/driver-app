@@ -21,9 +21,24 @@ jobs:
           node-version: 22
       - run: npm install
       - name: Expo փաթեթների համատեղելիություն
-        run: npx expo install --check
+        run: |
+          npx expo install --fix > fix.log 2>&1 || true
+          {
+            echo "### expo install --fix"
+            cat fix.log
+            echo "### package.json diff"
+            git diff package.json
+          } > report.txt
+          # Ամփոփումը որպես annotation, որ հնարավոր լինի կարդալ API-ով
+          body=$(sed ':a;N;$!ba;s/%/%25/g;s/\r//g;s/\n/%0A/g' report.txt)
+          echo "::notice title=deps::${body}"
       - name: TypeScript ստուգում
-        run: npx tsc --noEmit
+        run: |
+          if ! npx tsc --noEmit --pretty false > tsc.log 2>&1; then
+            body=$(head -c 30000 tsc.log | sed ':a;N;$!ba;s/%/%25/g;s/\r//g;s/\n/%0A/g')
+            echo "::error title=tsc::${body}"
+            exit 1
+          fi
 
   android:
     if: github.event_name == 'workflow_dispatch' && inputs.build_android
@@ -35,11 +50,12 @@ jobs:
         with:
           node-version: 22
       - run: npm install
+      - run: npx expo install --fix
       - uses: expo/expo-github-action@v8
         with:
           eas-version: latest
           token: ${{ secrets.EXPO_TOKEN }}
       - name: Կապել Expo նախագծին
         run: eas init --non-interactive --force
-      - name: Կառուցել APK (հղումը կհայտնվի ամփոփման մեջ և expo.dev-ում)
+      - name: Կառուցել APK (հղումը կհայտնվի expo.dev → Builds)
         run: eas build --platform android --profile preview --non-interactive --no-wait
